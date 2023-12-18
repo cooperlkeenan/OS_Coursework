@@ -5,46 +5,44 @@ list_files() {
     docker exec $1 ls /data/
 }
 
-# Function to sort files by length
+# Function to sort files by length and return only names
 sort_files() {
-    docker exec $1 sh -c "ls /data/ | xargs -I{} wc -c /data/{} | sort -n"
+    docker exec $1 sh -c "ls /data/ | xargs -I{} wc -c /data/{} | sort -n | awk '{print \$2}'"
 }
 
-# Main script starts here
+# Create and initialize the final text file
+final_book_chapter="final_book_chapter.txt"
+echo "Creating Final Book Chapter..." > $final_book_chapter
 
-# List files in each container
-files_docker1=$(list_files docker1-container)
-files_docker2=$(list_files docker2-container)
-files_docker3=$(list_files docker3-container)
-
-# Sort files in docker1 and docker2
-sorted_files_docker1=$(sort_files docker1-container)
-sorted_files_docker2=$(sort_files docker2-container)
-
-# Combine file names into an array
-IFS=$'\n' sorted_files_docker1=($sorted_files_docker1)
-IFS=$'\n' sorted_files_docker2=($sorted_files_docker2)
-IFS=$'\n' files_docker3=($files_docker3)
+# List and sort files in each container
+files_docker1=($(list_files docker1-container))
+sorted_files_docker1=($(sort_files docker1-container))
+sorted_files_docker2=($(sort_files docker2-container))
+files_docker3=($(list_files docker3-container))
 
 # Round Robin assembly
-final_text=""
 index=0
-max_length=$(echo "${#sorted_files_docker1[@]} ${#sorted_files_docker2[@]} ${#files_docker3[@]}" | awk '{print ($1>$2)? (($1>$3)? $1:$3) : (($2>$3)? $2:$3)}')
+max_length=$(( ${#sorted_files_docker1[@]} > ${#sorted_files_docker2[@]} ? ${#sorted_files_docker1[@]} : ${#sorted_files_docker2[@]} ))
+max_length=$(( $max_length > ${#files_docker3[@]} ? $max_length : ${#files_docker3[@]} ))
 
 while [ $index -lt $max_length ]; do
     if [ $index -lt ${#sorted_files_docker1[@]} ]; then
-        file_name=$(echo "${sorted_files_docker1[$index]}" | awk '{print $2}')
-        final_text+=$(docker exec docker1-container cat /data/$file_name)
+        echo "Appending from Docker 1: ${sorted_files_docker1[$index]}" >> $final_book_chapter
+        docker exec docker1-container cat "/data/${sorted_files_docker1[$index]}" >> $final_book_chapter
+        echo -e "\n---\n" >> $final_book_chapter
     fi
     if [ $index -lt ${#sorted_files_docker2[@]} ]; then
-        file_name=$(echo "${sorted_files_docker2[$index]}" | awk '{print $2}')
-        final_text+=$(docker exec docker2-container cat /data/$file_name)
+        echo "Appending from Docker 2: ${sorted_files_docker2[$index]}" >> $final_book_chapter
+        docker exec docker2-container cat "/data/${sorted_files_docker2[$index]}" >> $final_book_chapter
+        echo -e "\n---\n" >> $final_book_chapter
     fi
     if [ $index -lt ${#files_docker3[@]} ]; then
-        final_text+=$(docker exec docker3-container cat /data/${files_docker3[$index]})
+        echo "Appending from Docker 3: ${files_docker3[$index]}" >> $final_book_chapter
+        docker exec docker3-container cat "/data/${files_docker3[$index]}" >> $final_book_chapter
+        echo -e "\n---\n" >> $final_book_chapter
     fi
     let "index++"
 done
 
-# Output the final text
-echo "$final_text" > final_book_chapter.txt
+echo "Final Book Chapter created: $final_book_chapter"
+
