@@ -9,7 +9,7 @@ build_and_run() {
     docker build -t $container_name-image -f Dockerfile $docker_dir
 
     # Run the container in detached mode
-    docker run -dit --name $container_name $container_name-image
+    docker run -dit --name $container_name ubuntu:latest
 }
 
 # Function to list files excluding Dockerfile
