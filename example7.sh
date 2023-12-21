@@ -75,4 +75,8 @@ if [ "$answer" == "Yes" ]; then
     cat final_book_chapter.txt
 fi
 
-exit 0
+echo "Would you like to terminate the program? (Yes/No)"
+read answer
+if [ "$answer" == "Yes" ]; then
+    exit 0
+fi
