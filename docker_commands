@@ -1,0 +1,27 @@
+sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo apt-get update
+sudo apt install docker.io
+
+sudo docker load -i /mnt/share/alpine.tar
+sudo docker load -i /mnt/share/ubuntu.tar
+sudo docker load -i /mnt/share/nginx.tar
+
+mkdir my_docker_images
+cd my_docker_images
+touch Dockerfile
+
+# Dockerfile
+FROM alpine:3.4
+
+RUN apk update
+RUN apk add vim
+RUN apk add curl
+
+sudo docker build -t my_custom_image:1.0 .
+
+# Running from your custom image
+sudo docker run --name my_custom_container -it my_custom_image:1.0 /bin/sh
+
+# Running from Ubuntu image
+sudo docker run --name ubuntu_container -it ubuntu:latest /bin/sh
