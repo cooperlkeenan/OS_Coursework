@@ -77,7 +77,7 @@ echo "The Game of Dockers Chapter has been created."
 echo "Would you like to read Game of Dockers Chapter? (Yes/No)"
 read answer
 if [ "$answer" == "Yes" ]; then
-    cat final_book_chapter.txt
+    cat book.txt
 fi
 
 echo "Would you like to terminate the program? (Yes/No)"
