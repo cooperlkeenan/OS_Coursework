@@ -28,6 +28,11 @@ concatenate_files() {
     local index=$3
     local file_name=${file_array[$index]}
 
+    # Skip the Dockerfile
+    if [[ "$file_name" == "Dockerfile" ]]; then
+        return
+    fi
+
     if [ -n "$file_name" ]; then
         docker exec "$container" cat "/usr/src/app/$file_name" >> book.txt
         echo "" >> book.txt # Adding a newline for separation
