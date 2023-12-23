@@ -25,3 +25,5 @@ sudo docker run --name my_custom_container -it my_custom_image:1.0 /bin/sh
 
 # Running from Ubuntu image
 sudo docker run --name ubuntu_container -it ubuntu:latest /bin/sh
+
+docker rm docker1-container docker3-container docker3-container
