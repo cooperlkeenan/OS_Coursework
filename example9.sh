@@ -16,8 +16,10 @@ build_and_run() {
 
 # Function to list and sort files by length, returning only file names
 sort_files() {
-    docker exec docker exec "$container_name" ls -s /usr/src/app | head -n 2
+    local container_name=$1
+    docker exec "$container_name" sh -c "ls -S /usr/src/app | grep -v 'total' | head -n 2"
 }
+
 
 # concatenate file contents to the text file
 concatenate_files() {
