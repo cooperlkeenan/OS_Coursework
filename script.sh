@@ -90,8 +90,8 @@ echo "Finished loading text..."
 echo "The Game of Dockers Chapter has been created."
 
 
-# Terminal user interface 
 
+# Terminal user interface 
 
 # validate user input
 validate_input() {
@@ -100,14 +100,11 @@ validate_input() {
         case $answer in
             [Yy] ) echo "Y"; break;;  # If input is Y/y, return "Y"
             [Nn] ) echo "N"; break;;  # If input is N/n, return "N"
-            * ) echo "Please answer Y or N.";  # Request valid input for any other case
         esac
     done
 }
 
-# Test the function
-read_answer=$(validate_input "Would you like to read Game of Dockers Chapter?")
-echo "Your answer was: $read_answer"  # Just for debugging
+
 
 
 # Read and validate user input for reading the chapter
