@@ -4,13 +4,11 @@
 build_and_run() {
     local docker_dir=$1
     local container_name=$2
-    echo "Building image for $container_name..."
 
     # Navigate to the Docker directory and build the image
     cd "$docker_dir" || exit
     docker build -t "$container_name-image" . > /dev/null 2>&1 #stops detailed output 
-
-    echo "Running $container_name container..."
+    
     docker run -dit --name "$container_name" "$container_name-image" > /dev/null 2>&1
     echo "$container_name created"
     cd - > /dev/null 2>&1
