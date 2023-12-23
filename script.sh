@@ -4,14 +4,12 @@
 build_and_run() {
     local docker_dir=$1
     local container_name=$2
-    echo "Building image for $container_name..."
 
     # Navigate to the Docker directory and build the image
     cd "$docker_dir" || exit
     docker build -t "$container_name-image" . > /dev/null 2>&1 #stops detailed output 
 
     #run container
-    echo "Running $container_name container..."
     docker run -dit --name "$container_name" "$container_name-image" > /dev/null 2>&1
     echo "$container_name created"
     cd - > /dev/null 2>&1
@@ -94,17 +92,23 @@ echo "The Game of Dockers Chapter has been created."
 
 # Terminal user interface 
 
+
 # validate user input
 validate_input() {
     while true; do
         read -p "$1 (Y/N): " answer
         case $answer in
-            [Yy] ) echo "Y"; break;;  # If input = Y return "Y"
-            [Nn] ) echo "N"; break;;  # If input = Y return "Y"
-            * ) echo "Please answer Y or N.";  # Request valid input
+            [Yy] ) echo "Y"; break;;  # If input is Y/y, return "Y"
+            [Nn] ) echo "N"; break;;  # If input is N/n, return "N"
+            * ) echo "Please answer Y or N.";  # Request valid input for any other case
         esac
     done
 }
+
+# Test the function
+read_answer=$(validate_input "Would you like to read Game of Dockers Chapter?")
+echo "Your answer was: $read_answer"  # Just for debugging
+
 
 # Read and validate user input for reading the chapter
 read_answer=$(validate_input "Would you like to read Game of Dockers Chapter?")
@@ -126,4 +130,3 @@ if [ "$remove_answer" == "Y" ]; then
 fi
 
 exit 0
-
