@@ -1,19 +1,19 @@
  #!/bin/bash
 
-# Function to build Docker image and run container for each directory
+# Build Docker image and run container for each directory
 build_and_run() {
     local docker_dir=$1
     local container_name=$2
+    echo "Building image for $container_name..."
 
     # Navigate to the Docker directory and build the image
     cd "$docker_dir" || exit
-    docker build -t "$container_name-image" .
+    docker build -t "$container_name-image" . > /dev/null 2>&1 #stops detailed output 
 
-    # Navigate back to the original directory 
-    cd -
-
-    # Run the container in detached mode
-    docker run -dit --name "$container_name" "$container_name-image"
+    echo "Running $container_name container..."
+    docker run -dit --name "$container_name" "$container_name-image" > /dev/null 2>&1
+    echo "$container_name created..."
+    cd - > /dev/null 2>&1
 }
 
 # Function to list and sort files by length, returning only file names
@@ -43,12 +43,13 @@ concatenate_files() {
 cd ~/OS_Coursework
 
 # Build images and run containers
+echo "Creating Docker containers...."
 build_and_run "Docker1" "docker1-container"
 build_and_run "Docker2" "docker2-container"
 build_and_run "Docker3" "docker3-container"
 
-
 # List and sort files in each container
+echo "Loading files to Docker containers..."
 files_docker1=$(sort_files docker1-container)
 files_docker2=$(sort_files docker2-container)
 files_docker3=$(docker exec docker3-container ls /usr/src/app)
@@ -81,10 +82,11 @@ round_robin() {
 }
 
 # Perform a simple round robin operation on each set of files
+echo "Beginning text creation GAME_OF_DOCKERS.txt..."
 round_robin sorted_files_docker1 "docker1-container"
 round_robin sorted_files_docker2 "docker2-container"
 round_robin files_docker3 "docker3-container"
-
+echo "Finished loading text..."
 
 # Terminal user interface 
 echo "The Game of Dockers Chapter has been created."
