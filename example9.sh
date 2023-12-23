@@ -21,7 +21,7 @@ sort_files() {
     docker exec docker exec "$container_name" ls -s /usr/src/app | head -n 2
 }
 
-# Function to concatenate file contents to the final text file
+# concatenate file contents to the text file
 concatenate_files() {
     local container=$1
     local file_array=("${!2}")
@@ -35,7 +35,7 @@ concatenate_files() {
 
     if [ -n "$file_name" ]; then
         docker exec "$container" cat "/usr/src/app/$file_name" >> book.txt
-        echo "" >> book.txt # Adding a newline for separation
+        echo "" >> book.txt # newline for separation
     fi
 }
 
@@ -62,15 +62,29 @@ IFS=$'\n' files_docker3=($files_docker3)
 > book.txt
 
 # Round Robin assembly
-index=0
-max_length=$(echo "${#sorted_files_docker1[@]} ${#sorted_files_docker2[@]} ${#files_docker3[@]}" | awk '{print ($1>$2)? (($1>$3)? $1:$3) : (($2>$3)? $2:$3)}')
+round_robin() {
+    local -n _files=$1
+    local container_name=$2
 
-while [ $index -lt $max_length ]; do
-    concatenate_files "docker1-container" sorted_files_docker1[@] $index
-    concatenate_files "docker2-container" sorted_files_docker2[@] $index
-    concatenate_files "docker3-container" files_docker3[@] $index
-    let "index++"
-done
+    for file_name in "${_files[@]}"; do
+        # Skip the Dockerfile
+        if [[ "$file_name" == "Dockerfile" ]]; then
+            continue
+        fi
+
+        # Concatenate the file content
+        if [ -n "$file_name" ]; then
+            docker exec "$container_name" cat "/usr/src/app/$file_name" >> book.txt
+            echo "" >> book.txt  # Adding a newline for separation
+        fi
+    done
+}
+
+# Perform a simple round robin operation on each set of files
+round_robin sorted_files_docker1 "docker1-container"
+round_robin sorted_files_docker2 "docker2-container"
+round_robin files_docker3 "docker3-container"
+
 
 # Terminal user interface 
 echo "The Game of Dockers Chapter has been created."
@@ -94,7 +108,7 @@ read remove_answer
 
 if [ "$remove_answer" == "Yes" ]; then
     echo "Please specify the text or line number you want to remove (this will open the file in an interactive editor):"
-    nano book.txt  # Replace 'nano' with your preferred text editor, like 'vi' or 'sed' for more complex operations
+    nano book.txt  
 fi
 
 exit 0
